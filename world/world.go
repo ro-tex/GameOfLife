@@ -90,28 +90,20 @@ func (wo *World) growIfNeeded() {
 		}
 		return false
 	}
-	if len(wo.Board) < wo.MaxHeight {
-		if rowHasLiveCells(0) {
-			wo.Board = append([][]byte{make([]byte, len(wo.Board[0]))}, wo.Board...)
+	if len(wo.Board) < wo.MaxHeight && rowHasLiveCells(0) {
+		wo.Board = append([][]byte{make([]byte, len(wo.Board[0]))}, wo.Board...)
+	}
+	if len(wo.Board) < wo.MaxHeight && rowHasLiveCells(len(wo.Board)-1) {
+		wo.Board = append(wo.Board, make([]byte, len(wo.Board[0])))
+	}
+	if len(wo.Board[0]) < wo.MaxWidth && colHasLiveCells(0) {
+		for i := range wo.Board {
+			wo.Board[i] = append([]byte{0}, wo.Board[i]...)
 		}
 	}
-	if len(wo.Board) < wo.MaxHeight {
-		if rowHasLiveCells(len(wo.Board) - 1) {
-			wo.Board = append(wo.Board, make([]byte, len(wo.Board[0])))
-		}
-	}
-	if len(wo.Board[0]) < wo.MaxWidth {
-		if colHasLiveCells(0) {
-			for i := range wo.Board {
-				wo.Board[i] = append([]byte{0}, wo.Board[i]...)
-			}
-		}
-	}
-	if len(wo.Board[0]) < wo.MaxWidth {
-		if colHasLiveCells(len(wo.Board[0]) - 1) {
-			for i := range wo.Board {
-				wo.Board[i] = append(wo.Board[i], 0)
-			}
+	if len(wo.Board[0]) < wo.MaxWidth && colHasLiveCells(len(wo.Board[0])-1) {
+		for i := range wo.Board {
+			wo.Board[i] = append(wo.Board[i], 0)
 		}
 	}
 }
