@@ -114,35 +114,31 @@ func (wo *World) neighbours(h, w int) int {
 	woHeight := len(wo.Board)
 	woWidth := len(wo.Board[0])
 	// Upstairs neighbours.
-	if h > 0 {
-		if w > 0 && wo.Board[h-1][w-1] > 0 {
-			n++
-		}
-		if wo.Board[h-1][w] > 0 {
-			n++
-		}
-		if w < woWidth-1 && wo.Board[h-1][w+1] > 0 {
-			n++
-		}
-	}
-	// Own floor neighbours.
-	if w > 0 && wo.Board[h][w-1] > 0 {
+	if wo.Board[(woHeight+h-1)%woHeight][(woWidth+w-1)%woWidth] > 0 {
 		n++
 	}
-	if w < woWidth-1 && wo.Board[h][w+1] > 0 {
+	if wo.Board[(woHeight+h-1)%woHeight][w] > 0 {
+		n++
+	}
+	if wo.Board[(woHeight+h-1)%woHeight][(w+1)%woWidth] > 0 {
+		n++
+	}
+	// Own floor neighbours.
+	if wo.Board[h][(woWidth+w-1)%woWidth] > 0 {
+		n++
+	}
+	if wo.Board[h][(w+1)%woWidth] > 0 {
 		n++
 	}
 	// Downstairs neighbours.
-	if h < woHeight-1 {
-		if w > 0 && wo.Board[h+1][w-1] > 0 {
-			n++
-		}
-		if wo.Board[h+1][w] > 0 {
-			n++
-		}
-		if w < woWidth-1 && wo.Board[h+1][w+1] > 0 {
-			n++
-		}
+	if wo.Board[(h+1)%woHeight][(woWidth+w-1)%woWidth] > 0 {
+		n++
+	}
+	if wo.Board[(h+1)%woHeight][w] > 0 {
+		n++
+	}
+	if wo.Board[(h+1)%woHeight][(w+1)%woWidth] > 0 {
+		n++
 	}
 	return n
 }
