@@ -19,6 +19,8 @@ The idea:
   - grey background, orange life
 - host on github pages and Skynet
 
+Skapp onboarding workshop: https://github.com/NebulousLabs/skynet-workshop/tree/master/intro
+
 Drawbacks:
 - communicating between JS and WASM on each generation will be a severe performance hit. It might be faster to just implement in JS/TS but that kind of kills most of the idea (which is to play with Go and WASM).
 
