@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"github.com/ro-tex/GameOfLife/world"
+	"github.com/ro-tex/GameOfLife/engine/world"
 	"time"
 )
 
