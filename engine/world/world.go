@@ -25,18 +25,20 @@ type World struct {
 }
 
 // New creates a new empty World with a starting height and a max height.
-func New(h, w int) World {
+func New(h, w int) *World {
 	wo := World{
 		board: make([][]byte, h+2*padding),
 	}
 	for h := range wo.board {
 		wo.board[h] = make([]byte, w+2*padding)
 	}
-	return wo
+	// pad once with a layer that won't be displayed
+	wo.Pad()
+	return &wo
 }
 
 // NewFromSeed sets the state of the World.
-func NewFromSeed(seed [][]byte) World {
+func NewFromSeed(seed [][]byte) *World {
 	if len(seed) == 0 {
 		// can't start with an empty world...
 		seed = [][]byte{{0}}
@@ -44,8 +46,9 @@ func NewFromSeed(seed [][]byte) World {
 	wo := World{
 		board: seed,
 	}
-	wo.pad()
-	return wo
+	// pad once with a layer that won't be displayed
+	wo.Pad()
+	return &wo
 }
 
 // NextGen calculates the next generation of the World, growing it if necessary.
@@ -143,14 +146,14 @@ func (wo *World) neighbours(h, w int) int {
 	return n
 }
 
-// pad adds a layer of cells around the world that won't be displayed
-func (wo *World) pad() {
-	// pad horizontally
+// Pad adds a layer of cells around the world.
+func (wo *World) Pad() {
+	// Pad horizontally
 	hPad := make([]byte, padding, padding)
 	for i := 0; i < len(wo.board); i++ {
 		wo.board[i] = append(hPad, append(wo.board[i], hPad...)...)
 	}
-	// pad vertically
+	// Pad vertically
 	vPad := make([][]byte, padding, padding)
 	row := make([]byte, len(wo.board[0]), len(wo.board[0]))
 	for i := 0; i < padding; i++ {
