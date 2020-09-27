@@ -2,8 +2,9 @@ package main
 
 import (
 	"fmt"
-	"github.com/ro-tex/GameOfLife/engine/world"
 	"time"
+
+	"github.com/ro-tex/GameOfLife/engine/world"
 )
 
 var (
@@ -30,22 +31,11 @@ TODO
 */
 
 func main() {
-	max := 13
-	w := world.World{
-		Glider,
-		max,
-		max,
-	}
-	// Maximise:
-	w.Board = append(w.Board, make([][]byte, max-len(w.Board))...)
-	for i := range w.Board {
-		w.Board[i] = append(w.Board[i], make([]byte, max-len(w.Board[i]))...)
-	}
+	w := world.NewFromSeed(Glider)
 	for i := 0; i < 1000; i++ {
 		fmt.Println("\n\n\n\n\n\n\n\n\n\n\n")
 		w.Print()
 		w.NextGen()
-		fmt.Println("Board height", len(w.Board), ", width", len(w.Board[0]))
 		time.Sleep(200 * time.Millisecond)
 	}
 }

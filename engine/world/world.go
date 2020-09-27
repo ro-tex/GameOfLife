@@ -1,6 +1,8 @@
 package world
 
-import "fmt"
+import (
+	"fmt"
+)
 
 /*
 This is the main logic of the game.
@@ -8,17 +10,42 @@ This is the main logic of the game.
 The code is not supposed to be multi-threaded at this point, so there is no locking.
 */
 
+// padding is a region around the board that's not displayed. Its goal is to
+// allow moving shapes to "fly off the screen"
+const padding = 10
+
 // World is a complete representation of the game's state and logic.
 // The game is Conway's Game of Life.
 type World struct {
-	// The Board is the World itself. The less significant index denotes width
-	// and the more significant denotes height, i.e. Board[height][width].
+	// The board is the World itself. The less significant index denotes width
+	// and the more significant denotes height, i.e. board[height][width].
 	// TODO This can very much be represented by bits, reducing the needed memory 8 times.
-	Board [][]byte // TODO unexport again
+	board [][]byte
+	sweep bool // every other gen we wipe the edge of the world
+}
 
-	// Maximal dimensions of the World. Anything beyond that is considered dead.
-	MaxHeight int // TODO unexport again
-	MaxWidth  int // TODO unexport again
+// New creates a new empty World with a starting height and a max height.
+func New(h, w int) World {
+	wo := World{
+		board: make([][]byte, h+2*padding),
+	}
+	for h := range wo.board {
+		wo.board[h] = make([]byte, w+2*padding)
+	}
+	return wo
+}
+
+// NewFromSeed sets the state of the World.
+func NewFromSeed(seed [][]byte) World {
+	if len(seed) == 0 {
+		// can't start with an empty world...
+		seed = [][]byte{{0}}
+	}
+	wo := World{
+		board: seed,
+	}
+	wo.pad()
+	return wo
 }
 
 // NextGen calculates the next generation of the World, growing it if necessary.
@@ -34,16 +61,16 @@ type World struct {
 // Any cell with three live neighbours stays/becomes a live cell.
 // All other live cells die in the next generation. Similarly, all other dead cells stay dead.
 func (wo *World) NextGen() {
-	wo.growIfNeeded()
-	// Create the next generation Board.
-	newBoard := make([][]byte, len(wo.Board))
-	woWidth := len(wo.Board[0])
+	// Create the next generation board.
+	newBoard := make([][]byte, len(wo.board))
+	woHeight := len(wo.board)
+	woWidth := len(wo.board[0])
 	for i := range newBoard {
 		newBoard[i] = make([]byte, woWidth)
 	}
 	// Calculate the next generation.
-	for h := range wo.Board {
-		for w := range wo.Board[h] {
+	for h := range wo.board {
+		for w := range wo.board[h] {
 			n := wo.neighbours(h, w)
 			// Live cell survives, dead cell springs to life.
 			if n == 3 {
@@ -51,106 +78,91 @@ func (wo *World) NextGen() {
 				continue
 			}
 			// Live cell survives.
-			if wo.Board[h][w] > 0 && n == 2 {
+			if wo.board[h][w] > 0 && n == 2 {
 				newBoard[h][w] = 1
 			}
 		}
 	}
+	wo.sweep = !wo.sweep
+	if wo.sweep {
+		for h := 0; h < woHeight; h++ {
+			newBoard[h][0] = 0
+			newBoard[h][woWidth-1] = 0
+		}
+		for w := 0; w < woWidth; w++ {
+			newBoard[0][w] = 0
+			newBoard[woHeight-1][w] = 0
+		}
+	}
 	// Swap the next generation into the world.
-	wo.Board = newBoard
+	wo.board = newBoard
 }
 
-// Seed sets the state of the World.
-func (wo *World) Seed(seed [][]byte) {
-	wo.Board = seed
-}
-
+// TODO either remove this method or make it respect the padding
 // State returns the state of the World.
 func (wo *World) State() [][]byte {
-	return wo.Board
-}
-
-// growIfNeeded adds a single new row to each side of the world where a cell is
-// living on the edge, unless the world has reached its maximum size.
-// The order is bottom, top, right, left.
-func (wo *World) growIfNeeded() {
-	rowHasLiveCells := func(h int) bool {
-		for i := range wo.Board[h] {
-			if wo.Board[h][i] > 0 {
-				return true
-			}
-		}
-		return false
-	}
-	colHasLiveCells := func(w int) bool {
-		for i := range wo.Board {
-			if wo.Board[i][w] > 0 {
-				return true
-			}
-		}
-		return false
-	}
-	if len(wo.Board) < wo.MaxHeight && rowHasLiveCells(0) {
-		wo.Board = append([][]byte{make([]byte, len(wo.Board[0]))}, wo.Board...)
-	}
-	if len(wo.Board) < wo.MaxHeight && rowHasLiveCells(len(wo.Board)-1) {
-		wo.Board = append(wo.Board, make([]byte, len(wo.Board[0])))
-	}
-	if len(wo.Board[0]) < wo.MaxWidth && colHasLiveCells(0) {
-		for i := range wo.Board {
-			wo.Board[i] = append([]byte{0}, wo.Board[i]...)
-		}
-	}
-	if len(wo.Board[0]) < wo.MaxWidth && colHasLiveCells(len(wo.Board[0])-1) {
-		for i := range wo.Board {
-			wo.Board[i] = append(wo.Board[i], 0)
-		}
-	}
+	return wo.board
 }
 
 // neighbours counts the neighbours the given cell has in the World.
 func (wo *World) neighbours(h, w int) int {
 	n := 0
-	woHeight := len(wo.Board)
-	woWidth := len(wo.Board[0])
+	woHeight := len(wo.board)
+	woWidth := len(wo.board[0])
 	// Upstairs neighbours.
 	if h > 0 {
-		if w > 0 && wo.Board[h-1][w-1] > 0 {
+		if w > 0 && wo.board[h-1][w-1] > 0 {
 			n++
 		}
-		if wo.Board[h-1][w] > 0 {
+		if wo.board[h-1][w] > 0 {
 			n++
 		}
-		if w < woWidth-1 && wo.Board[h-1][w+1] > 0 {
+		if w < woWidth-1 && wo.board[h-1][w+1] > 0 {
 			n++
 		}
 	}
 	// Own floor neighbours.
-	if w > 0 && wo.Board[h][w-1] > 0 {
+	if w > 0 && wo.board[h][w-1] > 0 {
 		n++
 	}
-	if w < woWidth-1 && wo.Board[h][w+1] > 0 {
+	if w < woWidth-1 && wo.board[h][w+1] > 0 {
 		n++
 	}
 	// Downstairs neighbours.
 	if h < woHeight-1 {
-		if w > 0 && wo.Board[h+1][w-1] > 0 {
+		if w > 0 && wo.board[h+1][w-1] > 0 {
 			n++
 		}
-		if wo.Board[h+1][w] > 0 {
+		if wo.board[h+1][w] > 0 {
 			n++
 		}
-		if w < woWidth-1 && wo.Board[h+1][w+1] > 0 {
+		if w < woWidth-1 && wo.board[h+1][w+1] > 0 {
 			n++
 		}
 	}
 	return n
 }
 
+// pad adds a layer of cells around the world that won't be displayed
+func (wo *World) pad() {
+	// pad horizontally
+	hPad := make([]byte, padding, padding)
+	for i := 0; i < len(wo.board); i++ {
+		wo.board[i] = append(hPad, append(wo.board[i], hPad...)...)
+	}
+	// pad vertically
+	vPad := make([][]byte, padding, padding)
+	row := make([]byte, len(wo.board[0]), len(wo.board[0]))
+	for i := 0; i < padding; i++ {
+		vPad[i] = row
+	}
+	wo.board = append(vPad, append(wo.board, vPad...)...)
+}
+
 func (wo *World) Print() {
-	for h := range wo.Board {
-		for w := range wo.Board[h] {
-			if wo.Board[h][w] > 0 {
+	for h := padding; h < len(wo.board)-padding; h++ {
+		for w := padding; w < len(wo.board[h])-padding; w++ {
+			if wo.board[h][w] > 0 {
 				fmt.Print(" ⌘ ")
 			} else {
 				fmt.Print("   ")
