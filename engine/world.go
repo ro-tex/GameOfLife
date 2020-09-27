@@ -1,4 +1,4 @@
-package world
+package main
 
 import (
 	"fmt"
@@ -24,8 +24,8 @@ type World struct {
 	sweep bool // every other gen we wipe the edge of the world
 }
 
-// New creates a new empty World with a starting height and a max height.
-func New(h, w int) *World {
+// NewWorld creates a new empty World with a starting height and a max height.
+func NewWorld(h, w int) *World {
 	wo := World{
 		board: make([][]byte, h+2*padding),
 	}
@@ -37,8 +37,8 @@ func New(h, w int) *World {
 	return &wo
 }
 
-// NewFromSeed sets the state of the World.
-func NewFromSeed(seed [][]byte) *World {
+// NewWorldFromSeed sets the state of the World.
+func NewWorldFromSeed(seed [][]byte) *World {
 	if len(seed) == 0 {
 		// can't start with an empty world...
 		seed = [][]byte{{0}}

@@ -2,10 +2,46 @@ package main
 
 import (
 	"time"
+)
 
-	"github.com/ro-tex/GameOfLife/engine/shape"
+var (
+	Blinker = Shape{[][]byte{
+		{0, 0, 0},
+		{1, 1, 1},
+		{0, 0, 0},
+	}}
 
-	"github.com/ro-tex/GameOfLife/engine/world"
+	GliderDR = Shape{[][]byte{
+		{1, 0, 0},
+		{0, 1, 1},
+		{1, 1, 0},
+	}}
+	GliderDL = Shape{[][]byte{
+		{1, 0, 1},
+		{1, 1, 0},
+		{0, 1, 0},
+	}}
+	GliderUL = Shape{[][]byte{
+		{0, 1, 1},
+		{1, 1, 0},
+		{0, 0, 1},
+	}}
+	GliderUR = Shape{[][]byte{
+		{0, 1, 0},
+		{0, 1, 1},
+		{1, 0, 1},
+	}}
+	GliderSquare = Shape{[][]byte{
+		{0, 1, 1, 0, 0, 0, 0, 1, 0},
+		{1, 1, 0, 0, 0, 0, 0, 1, 1},
+		{0, 0, 1, 0, 0, 0, 1, 0, 1},
+		{0, 0, 0, 0, 0, 0, 0, 0, 0},
+		{0, 0, 0, 0, 0, 0, 0, 0, 0},
+		{0, 0, 0, 0, 0, 0, 0, 0, 0},
+		{1, 0, 1, 0, 0, 0, 1, 0, 0},
+		{1, 1, 0, 0, 0, 0, 0, 1, 1},
+		{0, 1, 0, 0, 0, 0, 1, 1, 0},
+	}}
 )
 
 /*
@@ -18,7 +54,7 @@ TODO
 */
 
 func main() {
-	w := world.NewFromSeed(shape.GliderSquare.Board)
+	w := NewWorldFromSeed(GliderSquare.Board)
 	w.Pad()
 	w.Pad()
 	w.Pad()
