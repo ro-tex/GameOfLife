@@ -1,8 +1,6 @@
 package main
 
-import (
-	"time"
-)
+import "time"
 
 var (
 	Blinker = Shape{[][]byte{
@@ -31,26 +29,27 @@ var (
 		{0, 1, 1},
 		{1, 0, 1},
 	}}
+	// Four gliders flying away from each other.
 	GliderSquare = Shape{[][]byte{
-		{0, 1, 1, 0, 0, 0, 0, 1, 0},
-		{1, 1, 0, 0, 0, 0, 0, 1, 1},
-		{0, 0, 1, 0, 0, 0, 1, 0, 1},
-		{0, 0, 0, 0, 0, 0, 0, 0, 0},
-		{0, 0, 0, 0, 0, 0, 0, 0, 0},
-		{0, 0, 0, 0, 0, 0, 0, 0, 0},
-		{1, 0, 1, 0, 0, 0, 1, 0, 0},
-		{1, 1, 0, 0, 0, 0, 0, 1, 1},
-		{0, 1, 0, 0, 0, 0, 1, 1, 0},
-	}}
+		{0, 1, 1, 0, 0, 0, 1, 0},
+		{1, 1, 0, 0, 0, 0, 1, 1},
+		{0, 0, 1, 0, 0, 1, 0, 1},
+		{0, 0, 0, 0, 0, 0, 0, 0},
+		{0, 0, 0, 0, 0, 0, 0, 0},
+		{1, 0, 1, 0, 0, 1, 0, 0},
+		{1, 1, 0, 0, 0, 0, 1, 1},
+		{0, 1, 0, 0, 0, 1, 1, 0},
+	},
+	}
 )
 
 /*
-TODO
-	- tests :)
-	- performance test on NextGen. keep previous results on disk, so you can compare
-	- add support for the standard format of Golly
-	- figure type that can rotate, combine, store, load Golly files.
-	- Web page has API that can init the world from base64. It can also load a standard file.
+   TODO
+   	- tests :)
+   	- performance test on NextGen. keep previous results on disk, so you can compare
+   	- add support for the standard format of Golly
+   	- figure type that can rotate, combine, store, load Golly files.
+   	- Web page has API that can init the world from base64. It can also load a standard file.
 */
 
 func main() {
